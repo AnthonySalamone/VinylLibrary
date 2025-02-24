@@ -4,6 +4,7 @@ import VinylCard from '../../components/vinyl/VinylCard'
 import SortFilter from '../../components/vinyl/SortFilter'
 import { getMyCollection } from '../../lib/api'
 import { Vinyl } from '../../lib/types'
+import VOTD from '../../components/vinyl/VOTD'
 
 export default function Home() {
   const [allVinyls, setAllVinyls] = useState<Vinyl[]>([])
@@ -16,7 +17,7 @@ export default function Home() {
     const fetchData = async () => {
       const data = await getMyCollection()
       setAllVinyls(data)
-      setDisplayedVinyls(data.slice(0, 20))
+      setDisplayedVinyls(data)
       
       // Extraire les genres uniques
       const uniqueGenres = Array.from(new Set(data.flatMap(vinyl => vinyl.genres)))
@@ -84,13 +85,13 @@ export default function Home() {
       }
     }
     
-    setDisplayedVinyls(filtered.slice(0, 20))
+    setDisplayedVinyls(filtered)
   }
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="container px-4 py-8 mx-auto">
-        <div className="mb-8">
+      <div className="py-8 mx-auto">
+        <div className="px-4 mb-8">
           <h1 className="text-3xl font-bold text-white">
             Ma Collection de Vinyles
           </h1>
@@ -99,15 +100,18 @@ export default function Home() {
           </div>
         </div>
 
-        <SortFilter 
-          onSortChange={handleSort}
-          onFilterChange={handleFilter}
-          genres={genres}
-          styles={availableStyles}
-          selectedGenre={selectedGenre}
-        />
+        <VOTD allVinyls={allVinyls} />
+        <div className="px-4">
+          <SortFilter 
+            onSortChange={handleSort}
+            onFilterChange={handleFilter}
+            genres={genres}
+            styles={availableStyles}
+            selectedGenre={selectedGenre}
+          />
+        </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-6 px-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
           {displayedVinyls.map((vinyl) => (
             <div key={vinyl.id} className="w-full aspect-square">
               <VinylCard {...vinyl} />
