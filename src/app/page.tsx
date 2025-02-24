@@ -1,26 +1,114 @@
+'use client'
+import { useState, useEffect } from 'react'
 import VinylCard from '../../components/vinyl/VinylCard'
+import SortFilter from '../../components/vinyl/SortFilter'
 import { getMyCollection } from '../../lib/api'
+import { Vinyl } from '../../lib/types'
 
-export default async function Home() {
-  const allVinyls = await getMyCollection()
-  // const vinyls = allVinyls.slice(0, 20)
+export default function Home() {
+  const [allVinyls, setAllVinyls] = useState<Vinyl[]>([])
+  const [displayedVinyls, setDisplayedVinyls] = useState<Vinyl[]>([])
+  const [genres, setGenres] = useState<string[]>([])
+  const [availableStyles, setAvailableStyles] = useState<string[]>([])
+  const [selectedGenre, setSelectedGenre] = useState('')
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getMyCollection()
+      setAllVinyls(data)
+      setDisplayedVinyls(data.slice(0, 20))
+      
+      // Extraire les genres uniques
+      const uniqueGenres = Array.from(new Set(data.flatMap(vinyl => vinyl.genres)))
+      setGenres(uniqueGenres)
+    }
+    fetchData()
+  }, [])
+
+  // Mettre à jour les styles disponibles quand le genre change
+  const updateAvailableStyles = (genre: string) => {
+    if (!genre) {
+      // Si aucun genre n'est sélectionné, afficher tous les styles
+      const allStyles = Array.from(new Set(allVinyls.flatMap(vinyl => vinyl.styles)))
+      setAvailableStyles(allStyles)
+    } else {
+      // Filtrer les styles en fonction du genre sélectionné
+      const vinylsWithGenre = allVinyls.filter(vinyl => vinyl.genres.includes(genre))
+      const stylesForGenre = Array.from(new Set(vinylsWithGenre.flatMap(vinyl => vinyl.styles)))
+      setAvailableStyles(stylesForGenre)
+    }
+  }
+
+  const handleSort = (sortBy: string) => {
+    const sorted = [...displayedVinyls]
+    switch (sortBy) {
+      case 'title':
+        sorted.sort((a, b) => a.title.localeCompare(b.title))
+        break
+      case 'title-desc':
+        sorted.sort((a, b) => b.title.localeCompare(a.title))
+        break
+      case 'artist':
+        sorted.sort((a, b) => a.artist.localeCompare(b.artist))
+        break
+      case 'artist-desc':
+        sorted.sort((a, b) => b.artist.localeCompare(a.artist))
+        break
+      case 'year':
+        sorted.sort((a, b) => a.year - b.year)
+        break
+      case 'year-desc':
+        sorted.sort((a, b) => b.year - a.year)
+        break
+    }
+    setDisplayedVinyls(sorted)
+  }
+
+  const handleFilter = (filterType: string, value: string) => {
+    let filtered = [...allVinyls]
+    
+    if (filterType === 'genre') {
+      setSelectedGenre(value)
+      updateAvailableStyles(value)
+      
+      if (value) {
+        filtered = filtered.filter(vinyl => vinyl.genres.includes(value))
+      }
+    } else if (filterType === 'style') {
+      if (value) {
+        filtered = filtered.filter(vinyl => vinyl.styles.includes(value))
+        // Maintenir le filtre de genre si présent
+        if (selectedGenre) {
+          filtered = filtered.filter(vinyl => vinyl.genres.includes(selectedGenre))
+        }
+      }
+    }
+    
+    setDisplayedVinyls(filtered.slice(0, 20))
+  }
 
   return (
-    <div className="min-h-screen bg-black"> 
-      <div>
-        {/* En-tête */}
+    <div className="min-h-screen bg-black">
+      <div className="container px-4 py-8 mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">
             Ma Collection de Vinyles
           </h1>
-          <div className="text-white text-2xl mt-2">
-            Affichage de {allVinyls.length} albums
+          <div className="mt-2 text-2xl text-white">
+            {displayedVinyls.length} albums affichés
           </div>
         </div>
 
-        {/* Grille de vinyles */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-          {allVinyls.map((vinyl) => (
+        <SortFilter 
+          onSortChange={handleSort}
+          onFilterChange={handleFilter}
+          genres={genres}
+          styles={availableStyles}
+          selectedGenre={selectedGenre}
+        />
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+          {displayedVinyls.map((vinyl) => (
             <div key={vinyl.id} className="w-full aspect-square">
               <VinylCard {...vinyl} />
             </div>
