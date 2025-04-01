@@ -1,11 +1,70 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import VinylCard from "../../components/vinyl/VinylCard";
 import SortFilter from "../../components/vinyl/SortFilter";
+import VOTD from "../../components/vinyl/VOTD";
 import { getMyCollection } from "../../lib/api";
 import { Vinyl } from "../../lib/types";
-import VOTD from "../../components/vinyl/VOTD";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
+
+// AnimatedTitle Component
+const AnimatedTitle = ({
+  children,
+  className = "",
+  isLightBackground,
+  vinylCount = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  isLightBackground: boolean;
+  vinylCount?: number;
+}) => {
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (titleRef.current) {
+      // Create a ScrollTrigger timeline
+      gsap.to(".title-animation-trigger", {
+        scrollTrigger: {
+          trigger: ".title-animation-trigger",
+          start: "top 20%",
+          markers: true,
+          scrub: true,
+        },
+        scale: 0,
+      });
+    }
+  }, []);
+
+  return (
+    <div className="overflow-hidden title-animation-trigger">
+      <h1
+        ref={titleRef}
+        className={`text-[clamp(4rem,10vw,9rem)] font-bold uppercase text-center leading-none ${
+          isLightBackground ? "text-black" : "text-white"
+        } ${className}`}
+      >
+        {children}
+      </h1>
+      <div
+        className={`mt-2 text-2xl text-center ${
+          isLightBackground ? "text-black" : "text-white"
+        }`}
+      >
+        {vinylCount} records imported from{" "}
+        <a href="https://discogs.com" className="underline">
+          Discogs
+        </a>
+      </div>
+    </div>
+  );
+};
+
+// Main Home Page Component
 export default function Home() {
   const [allVinyls, setAllVinyls] = useState<Vinyl[]>([]);
   const [displayedVinyls, setDisplayedVinyls] = useState<Vinyl[]>([]);
@@ -15,7 +74,6 @@ export default function Home() {
   const [dominantColor, setDominantColor] = useState<string | null>(null);
   const [isLightBackground, setIsLightBackground] = useState<boolean>(true);
 
-  // Dans page.tsx (page d'accueil)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -23,30 +81,30 @@ export default function Home() {
         setAllVinyls(data);
         setDisplayedVinyls(data);
 
-        // Extraire les genres uniques
+        // Extract unique genres
         const uniqueGenres = Array.from(
           new Set(data.flatMap((vinyl) => vinyl.genres))
         );
         setGenres(uniqueGenres);
       } catch (error) {
-        console.error("Erreur lors du chargement de la collection:", error);
-        // Gérer l'erreur, peut-être en affichant un message à l'utilisateur
+        console.error("Error loading collection:", error);
+        // Handle error, perhaps by displaying a message to the user
       }
     };
 
     fetchData();
   }, []);
 
-  // Mettre à jour les styles disponibles quand le genre change
+  // Update available styles when genre changes
   const updateAvailableStyles = (genre: string) => {
     if (!genre) {
-      // Si aucun genre n'est sélectionné, afficher tous les styles
+      // If no genre is selected, show all styles
       const allStyles = Array.from(
         new Set(allVinyls.flatMap((vinyl) => vinyl.styles))
       );
       setAvailableStyles(allStyles);
     } else {
-      // Filtrer les styles en fonction du genre sélectionné
+      // Filter styles based on selected genre
       const vinylsWithGenre = allVinyls.filter((vinyl) =>
         vinyl.genres.includes(genre)
       );
@@ -57,7 +115,7 @@ export default function Home() {
     }
   };
 
-  // Fonction pour recevoir la couleur dominante de VOTD
+  // Function to receive dominant color from VOTD
   const handleColorExtracted = (color: string, isLight: boolean) => {
     setDominantColor(color);
     setIsLightBackground(isLight);
@@ -101,7 +159,7 @@ export default function Home() {
     } else if (filterType === "style") {
       if (value) {
         filtered = filtered.filter((vinyl) => vinyl.styles.includes(value));
-        // Maintenir le filtre de genre si présent
+        // Maintain genre filter if present
         if (selectedGenre) {
           filtered = filtered.filter((vinyl) =>
             vinyl.genres.includes(selectedGenre)
@@ -118,22 +176,16 @@ export default function Home() {
       className="min-h-screen"
       style={{ backgroundColor: dominantColor || "black" }}
     >
-      <div className="py-8 mx-auto">
-        <div className="px-4 mb-8">
-          <h1
-            className={`text-3xl font-bold ${
-              isLightBackground ? "text-black" : "text-white"
-            }`}
+      <div className="mx-auto">
+        <div className="px-4 mb-8 h-[90vh] flex flex-col justify-center items-center">
+          <AnimatedTitle
+            isLightBackground={isLightBackground}
+            vinylCount={displayedVinyls.length}
           >
-            Ma Collection de Vinyles
-          </h1>
-          <div
-            className={`mt-2 text-2xl ${
-              isLightBackground ? "text-black" : "text-white"
-            }`}
-          >
-            {displayedVinyls.length} albums affichés
-          </div>
+            Analog
+            <br />
+            Artifacts
+          </AnimatedTitle>
         </div>
 
         <VOTD allVinyls={allVinyls} onColorExtracted={handleColorExtracted} />
