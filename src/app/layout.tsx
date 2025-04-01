@@ -1,21 +1,20 @@
-import './globals.css'
-import { Inter } from 'next/font/google'
+// app/layout.tsx
+import "./globals.css";
+import { Hanken_Grotesk } from "next/font/google";
+import ClientSmoothScroll from "../../components/clientSmoothScroll";
 
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata = {
-  title: 'Ma Collection de Vinyles',
-  description: 'Une collection de vinyles affichée avec Next.js',
-}
+const hanken = Hanken_Grotesk({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="fr">
-      <body className={inter.className}>{children}</body>
+      <body className={hanken.className}>
+        <ClientSmoothScroll>{children}</ClientSmoothScroll>
+      </body>
     </html>
-  )
+  );
 }

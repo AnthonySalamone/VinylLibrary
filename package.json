@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@studio-freight/lenis": "^1.0.42",
     "axios": "^1.7.9",
     "colorthief": "^2.6.0",
+    "gsap": "^3.12.7",
     "lodash": "^4.17.21",
     "next": "15.1.7",
     "react": "^19.0.0",
