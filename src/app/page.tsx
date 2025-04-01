@@ -35,7 +35,7 @@ const AnimatedTitle = ({
           markers: true,
           scrub: true,
         },
-        scale: 0,
+        scale: 0.2,
       });
     }
   }, []);
@@ -44,7 +44,7 @@ const AnimatedTitle = ({
     <div className="overflow-hidden title-animation-trigger">
       <h1
         ref={titleRef}
-        className={`text-[clamp(4rem,10vw,9rem)] font-bold uppercase text-center leading-none ${
+        className={`text-[clamp(4rem,15vw,15rem)] font-bold uppercase text-center leading-none ${
           isLightBackground ? "text-black" : "text-white"
         } ${className}`}
       >
@@ -199,7 +199,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 px-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-0 px-0 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
           {displayedVinyls.map((vinyl) => (
             <div key={vinyl.id} className="w-full aspect-square">
               <VinylCard {...vinyl} />

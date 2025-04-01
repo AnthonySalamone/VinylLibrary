@@ -7,6 +7,7 @@ export interface Vinyl {
   genres: string[];
   styles: string[];
   copies?: number;
+  images?: string[];
   raw?: {
     basic_information: {
       formats?: Array<{

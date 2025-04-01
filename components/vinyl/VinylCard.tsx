@@ -49,12 +49,20 @@ export default function VinylCard({
 
         <div className="absolute top-2 left-2 space-y-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           <div className="flex flex-col gap-2">
+            {/* Informations de l'album */}
+            <div className="mb-1 w-full">
+              <h3 className="text-lg font-bold text-white break-words">
+                {title}
+              </h3>
+              <p className="truncate text-white/90">{artist}</p>
+              <p className="text-sm text-white/70">{year}</p>
+            </div>
             {/* Genres */}
-            <div>
+            <div className="flex flex-wrap gap-y-1">
               {genres.map((genre, index) => (
                 <span
                   key={index}
-                  className="mr-1 text-sm font-bold text-white uppercase last:mr-0"
+                  className="px-2 py-1 mr-1 text-sm font-bold text-white uppercase rounded-full border border-white last:mr-0"
                 >
                   {genre}
                 </span>
@@ -62,11 +70,11 @@ export default function VinylCard({
             </div>
 
             {/* Styles musicaux */}
-            <div>
+            <div className="flex flex-wrap gap-y-1">
               {styles.map((style, index) => (
                 <span
                   key={index}
-                  className="p-2 mr-1 text-xs text-white rounded-full bg-black/70 last:mr-0"
+                  className="px-2 py-1 mr-2 text-xs text-white uppercase rounded-full border border-black last:mr-0"
                 >
                   {style}
                 </span>
@@ -74,17 +82,9 @@ export default function VinylCard({
             </div>
           </div>
 
-          {/* Informations de l'album */}
-          <div className="w-full">
-            <h3 className="text-lg font-bold text-white break-words">
-              {title}
-            </h3>
-            <p className="truncate text-white/90">{artist}</p>
-            <p className="text-sm text-white/70">{year}</p>
-          </div>
           {/* Badge pour les copies multiples */}
           {copies > 1 && (
-            <div className="absolute top-2 right-2 px-2 py-1 text-sm text-white rounded-full bg-black/70">
+            <div className="absolute top-1 right-1 px-2 py-1 text-sm text-white rounded-full bg-black/70">
               {copies}x
             </div>
           )}

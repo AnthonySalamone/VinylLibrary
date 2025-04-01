@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 interface SortFilterProps {
   onSortChange: (sortBy: string) => void;
@@ -8,16 +8,16 @@ interface SortFilterProps {
   selectedGenre: string;
 }
 
-export default function SortFilter({ 
-  onSortChange, 
-  onFilterChange, 
-  genres, 
-  styles 
+export default function SortFilter({
+  onSortChange,
+  onFilterChange,
+  genres,
+  styles,
 }: SortFilterProps) {
   return (
-    <div className="flex gap-4 mb-6">
+    <div className="flex gap-4 mt-20 mb-6">
       {/* Tri */}
-      <select 
+      <select
         onChange={(e) => onSortChange(e.target.value)}
         className="px-4 py-2 text-white bg-gray-800 rounded-lg"
         defaultValue=""
@@ -32,28 +32,32 @@ export default function SortFilter({
       </select>
 
       {/* Filtre par genre */}
-      <select 
-        onChange={(e) => onFilterChange('genre', e.target.value)}
+      <select
+        onChange={(e) => onFilterChange("genre", e.target.value)}
         className="px-4 py-2 text-white bg-gray-800 rounded-lg"
         defaultValue=""
       >
         <option value="">Genre...</option>
-        {genres.map(genre => (
-          <option key={genre} value={genre}>{genre}</option>
+        {genres.map((genre) => (
+          <option key={genre} value={genre}>
+            {genre}
+          </option>
         ))}
       </select>
 
       {/* Filtre par style */}
-      <select 
-        onChange={(e) => onFilterChange('style', e.target.value)}
+      <select
+        onChange={(e) => onFilterChange("style", e.target.value)}
         className="px-4 py-2 text-white bg-gray-800 rounded-lg"
         defaultValue=""
       >
         <option value="">Style...</option>
-        {styles.map(style => (
-          <option key={style} value={style}>{style}</option>
+        {styles.map((style) => (
+          <option key={style} value={style}>
+            {style}
+          </option>
         ))}
       </select>
     </div>
-  )
+  );
 }

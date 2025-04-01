@@ -174,24 +174,20 @@ export default function VOTD({ allVinyls, onColorExtracted }: VOTDProps) {
 
   return (
     <div
-      className={`overflow-hidden px-4 py-10 mb-8 ${textColorClass}`}
-      style={{ backgroundColor: dominantColor || "transparent" }}
+      className={`overflow-hidden p-20 mx-4 mb-8 text-black bg-white rounded-lg`}
+      style={{ color: dominantColor || "black" }}
     >
-      <div>
-        <h2 className="mb-4 text-2xl font-bold">Album du Jour</h2>
-      </div>
-
-      <div className="flex flex-col gap-4 md:flex-row">
+      <div className="flex flex-col gap-4 mb-8 md:flex-row">
         {/* Image de l'album avec lien vers la page détaillée */}
         <Link
           href={`/album/${vinylOfTheDay.id}`}
-          className="relative w-full transition-opacity md:w-1/3 aspect-square hover:opacity-90"
+          className="relative w-full transition-opacity md:w-1/2 aspect-square hover:opacity-90"
         >
           <Image
             src={vinylOfTheDay.cover}
             alt={vinylOfTheDay.title}
             fill
-            className="object-cover"
+            className="object-cover rounded-lg"
             ref={imageRef}
             crossOrigin="anonymous"
           />
@@ -200,56 +196,77 @@ export default function VOTD({ allVinyls, onColorExtracted }: VOTDProps) {
             onColorExtracted={handleColorExtracted}
           />
         </Link>
-
         {/* Informations de l'album */}
-        <div className="flex-1">
-          <Link href={`/album/${vinylOfTheDay.id}`} className="hover:underline">
-            <h3 className="mb-2 text-2xl font-bold">{vinylOfTheDay.title}</h3>
-          </Link>
-          <p className="mb-4 text-lg">{vinylOfTheDay.artist}</p>
-          <p className="mb-4">{vinylOfTheDay.year}</p>
-
+        <div className="flex flex-col justify-between grow">
+          <div>
+            <Link
+              href={`/album/${vinylOfTheDay.id}`}
+              className="hover:underline"
+            >
+              <h3 className="mb-2 text-[clamp(2rem,10vw,4rem)] leading-none font-bold">
+                {vinylOfTheDay.title}
+              </h3>
+            </Link>
+            <p className="mb-2 text-xl uppercase">{vinylOfTheDay.artist}</p>
+            <p className="mb-2 text-xl">{vinylOfTheDay.year}</p>
+          </div>
           {/* Genres et Styles */}
-          <div className="mb-4 space-y-2 text-white">
-            <div className="flex flex-wrap gap-2">
+          <div className="space-y-2">
+            <div className="text-sm">Genres</div>
+            <div className="flex flex-wrap gap-2 text-white">
               {vinylOfTheDay.genres.map((genre: string, index: number) => (
                 <span
                   key={index}
-                  className="px-2 py-1 text-sm rounded-full bg-red-600/80"
+                  className="px-2 py-1 text-sm rounded-full"
+                  style={{ backgroundColor: dominantColor || "black" }}
                 >
                   {genre}
                 </span>
               ))}
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="text-sm">Styles</div>
+            <div className="flex flex-wrap gap-2 text-white">
               {vinylOfTheDay.styles.map((style: string, index: number) => (
                 <span
                   key={index}
-                  className="px-2 py-1 text-sm bg-black rounded-full"
+                  className="px-2 py-1 text-sm rounded-full"
+                  style={{ backgroundColor: dominantColor || "black" }}
                 >
                   {style}
                 </span>
               ))}
             </div>
           </div>
+        </div>
+      </div>
 
-          <Link
-            href={`/album/${vinylOfTheDay.id}`}
-            className="inline-block px-4 py-2 mt-2 rounded-md transition-colors bg-white/20 hover:bg-white/30"
-          >
-            Voir les détails
-          </Link>
+      <div className="flex flex-wrap gap-2 justify-end pt-6 w-full h-full">
+        <div className="flex flex-wrap w-1/2">
+          <div className="w-1/2 rounded-lg border-2 border-gray-300 aspect-square">
+            img1
+          </div>
+          <div className="w-1/2 rounded-lg border-2 border-gray-300 aspect-square">
+            img2
+          </div>
+          <div className="w-1/2 rounded-lg border-2 border-gray-300 aspect-square">
+            img3
+          </div>
+          <div className="w-1/2 rounded-lg border-2 border-gray-300 aspect-square">
+            img4
+          </div>
         </div>
       </div>
 
       {/* Section de l'artiste */}
       <div className="pt-6 mt-8">
-        <h3 className="mb-4 text-xl font-bold">À propos de l&apos;artiste</h3>
+        <h3 className="mb-4 text-[clamp(1.5rem,10vw,2rem)] font-bold uppercase">
+          Who is {artist?.name}?
+        </h3>
 
         <div className="flex flex-col gap-6 md:flex-row">
           {/* Photo de l'artiste */}
           {artistImage && (
-            <div className="relative mb-4 w-full md:w-1/4 aspect-square md:mb-0">
+            <div className="relative mb-4 w-full md:w-1/2 aspect-square md:mb-0">
               <Image
                 src={artistImage}
                 alt={artist?.name || vinylOfTheDay.artist}
@@ -265,7 +282,9 @@ export default function VOTD({ allVinyls, onColorExtracted }: VOTDProps) {
               <p className="text-gray-700">Chargement des informations...</p>
             ) : (
               <>
-                <p className="whitespace-pre-line">{formatArtistProfile()}</p>
+                <p className="text-xl whitespace-pre-line">
+                  {formatArtistProfile()}
+                </p>
                 {artist?.url && (
                   <a
                     href={artist.url}
