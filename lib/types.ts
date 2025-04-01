@@ -7,6 +7,16 @@ export interface Vinyl {
   genres: string[];
   styles: string[];
   copies?: number;
+  raw?: {
+    basic_information: {
+      formats?: Array<{
+        name: string;
+        qty: number;
+        descriptions?: string[];
+      }>;
+      resource_url?: string;
+    };
+  };
 }
 
 export interface ColorThief {

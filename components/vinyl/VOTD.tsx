@@ -1,9 +1,11 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Vinyl, ColorThief } from "../../lib/types";
+import Link from "next/link";
+import { Vinyl } from "../../lib/types";
 import axios from "axios";
-import ColorThiefModule from "colorthief";
+import ColorExtractor from "../utils/ColorExtractor";
+import useDominantColor from "../../hooks/useDominantColor";
 
 interface VOTDProps {
   allVinyls: Vinyl[];
@@ -29,9 +31,11 @@ export default function VOTD({ allVinyls, onColorExtracted }: VOTDProps) {
   const [previousVinyls, setPreviousVinyls] = useState<Vinyl[]>([]);
   const [artist, setArtist] = useState<ArtistInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [dominantColor, setDominantColor] = useState<string | null>(null);
-  const [textColorClass, setTextColorClass] = useState<string>("text-black");
-  const imageRef = useRef<HTMLImageElement>(null);
+
+  // Utiliser notre hook personnalisé
+  const { imageRef, dominantColor, textColorClass, handleColorExtracted } =
+    useDominantColor();
+
   // Configuration pour les requêtes Discogs
   const DISCOGS_TOKEN = process.env.NEXT_PUBLIC_DISCOGS_TOKEN;
 
@@ -133,6 +137,14 @@ export default function VOTD({ allVinyls, onColorExtracted }: VOTDProps) {
     }
   }, [allVinyls, DISCOGS_TOKEN]);
 
+  // Gestion de la couleur extraite avec fonction de rappel vers le composant parent
+  useEffect(() => {
+    if (dominantColor && onColorExtracted) {
+      const isLight = textColorClass === "text-black";
+      onColorExtracted(dominantColor, isLight);
+    }
+  }, [dominantColor, textColorClass, onColorExtracted]);
+
   if (!vinylOfTheDay) return null;
 
   // Obtenir l'image de l'artiste (la première disponible, de préférence de type primary)
@@ -160,42 +172,6 @@ export default function VOTD({ allVinyls, onColorExtracted }: VOTDProps) {
       : artist.profile;
   };
 
-  // Puis dans la fonction extractDominantColor, appelez cette fonction
-  const extractDominantColor = () => {
-    if (imageRef.current && imageRef.current.complete) {
-      try {
-        const colorThief = new (ColorThiefModule as unknown as {
-          new (): ColorThief;
-        })();
-        const color = colorThief.getColor(imageRef.current);
-        const newDominantColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-        setDominantColor(newDominantColor);
-
-        // Calculer la luminosité
-        const r = color[0];
-        const g = color[1];
-        const b = color[2];
-        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-        const isLight = luminance > 0.5;
-
-        // Mettre à jour le state local
-        setTextColorClass(isLight ? "text-black" : "text-white");
-
-        // Informer le composant parent de la couleur extraite
-        if (onColorExtracted) {
-          onColorExtracted(newDominantColor, isLight);
-        }
-      } catch (error) {
-        console.error("Erreur lors de l'extraction de la couleur:", error);
-      }
-    }
-  };
-
-  // Gérer le chargement de l'image
-  const handleImageLoad = () => {
-    extractDominantColor();
-  };
-
   return (
     <div
       className={`overflow-hidden px-4 py-10 mb-8 ${textColorClass}`}
@@ -206,22 +182,30 @@ export default function VOTD({ allVinyls, onColorExtracted }: VOTDProps) {
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row">
-        {/* Image de l'album */}
-        <div className="relative w-full md:w-1/3 aspect-square">
+        {/* Image de l'album avec lien vers la page détaillée */}
+        <Link
+          href={`/album/${vinylOfTheDay.id}`}
+          className="relative w-full transition-opacity md:w-1/3 aspect-square hover:opacity-90"
+        >
           <Image
             src={vinylOfTheDay.cover}
             alt={vinylOfTheDay.title}
             fill
             className="object-cover"
             ref={imageRef}
-            onLoad={handleImageLoad}
             crossOrigin="anonymous"
           />
-        </div>
+          <ColorExtractor
+            imageRef={imageRef}
+            onColorExtracted={handleColorExtracted}
+          />
+        </Link>
 
         {/* Informations de l'album */}
         <div className="flex-1">
-          <h3 className="mb-2 text-2xl font-bold">{vinylOfTheDay.title}</h3>
+          <Link href={`/album/${vinylOfTheDay.id}`} className="hover:underline">
+            <h3 className="mb-2 text-2xl font-bold">{vinylOfTheDay.title}</h3>
+          </Link>
           <p className="mb-4 text-lg">{vinylOfTheDay.artist}</p>
           <p className="mb-4">{vinylOfTheDay.year}</p>
 
@@ -248,6 +232,13 @@ export default function VOTD({ allVinyls, onColorExtracted }: VOTDProps) {
               ))}
             </div>
           </div>
+
+          <Link
+            href={`/album/${vinylOfTheDay.id}`}
+            className="inline-block px-4 py-2 mt-2 rounded-md transition-colors bg-white/20 hover:bg-white/30"
+          >
+            Voir les détails
+          </Link>
         </div>
       </div>
 
@@ -294,12 +285,16 @@ export default function VOTD({ allVinyls, onColorExtracted }: VOTDProps) {
       {/* Historique des albums du jour */}
       {previousVinyls.length > 0 && (
         <div className="pt-6 mt-8 border-t border-gray-300">
-          <h3 className="mb-4 text-xl font-bold text-black">
+          <h3 className="mb-4 text-xl font-bold">
             Historique des Albums du Jour
           </h3>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
             {previousVinyls.map((vinyl, index) => (
-              <div key={`history-${index}`} className="relative">
+              <Link
+                key={`history-${index}`}
+                href={`/album/${vinyl.id}`}
+                className="block relative"
+              >
                 <div className="relative w-full aspect-square">
                   <Image
                     src={vinyl.cover}
@@ -315,7 +310,7 @@ export default function VOTD({ allVinyls, onColorExtracted }: VOTDProps) {
                     <p className="text-xs text-white">{vinyl.year}</p>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

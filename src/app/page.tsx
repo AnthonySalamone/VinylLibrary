@@ -15,18 +15,25 @@ export default function Home() {
   const [dominantColor, setDominantColor] = useState<string | null>(null);
   const [isLightBackground, setIsLightBackground] = useState<boolean>(true);
 
+  // Dans page.tsx (page d'accueil)
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getMyCollection();
-      setAllVinyls(data);
-      setDisplayedVinyls(data);
+      try {
+        const data = await getMyCollection();
+        setAllVinyls(data);
+        setDisplayedVinyls(data);
 
-      // Extraire les genres uniques
-      const uniqueGenres = Array.from(
-        new Set(data.flatMap((vinyl) => vinyl.genres))
-      );
-      setGenres(uniqueGenres);
+        // Extraire les genres uniques
+        const uniqueGenres = Array.from(
+          new Set(data.flatMap((vinyl) => vinyl.genres))
+        );
+        setGenres(uniqueGenres);
+      } catch (error) {
+        console.error("Erreur lors du chargement de la collection:", error);
+        // Gérer l'erreur, peut-être en affichant un message à l'utilisateur
+      }
     };
+
     fetchData();
   }, []);
 
