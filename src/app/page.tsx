@@ -27,31 +27,39 @@ const AnimatedTitle = ({
 
   useEffect(() => {
     if (titleRef.current) {
+      // Set transform origin to top left
+      gsap.set(".title-animation-trigger", {
+        transformOrigin: "top left",
+      });
+
       // Create a ScrollTrigger timeline
       gsap.to(".title-animation-trigger", {
         scrollTrigger: {
           trigger: ".title-animation-trigger",
-          start: "top 20%",
-          markers: true,
+          start: "top top",
+          end: "+=800",
+          markers: false,
           scrub: true,
+          pin: true,
+          pinSpacing: false,
         },
-        scale: 0.2,
+        scale: 0.3,
+        y: 0,
       });
     }
   }, []);
 
   return (
-    <div className="overflow-hidden title-animation-trigger">
+    <div className="overflow-hidden title-animation-trigger" ref={titleRef}>
       <h1
-        ref={titleRef}
-        className={`text-[clamp(4rem,15vw,15rem)] font-bold uppercase text-center leading-none ${
+        className={`text-[clamp(4rem,15vw,15rem)] font-bold uppercase leading-none  ${
           isLightBackground ? "text-black" : "text-white"
         } ${className}`}
       >
         {children}
       </h1>
       <div
-        className={`mt-2 text-2xl text-center ${
+        className={`mt-2 text-2xl ${
           isLightBackground ? "text-black" : "text-white"
         }`}
       >
@@ -177,7 +185,7 @@ export default function Home() {
       style={{ backgroundColor: dominantColor || "black" }}
     >
       <div className="mx-auto">
-        <div className="px-4 mb-8 h-[90vh] flex flex-col justify-center items-center">
+        <div className="px-4 mb-8 h-[90vh]">
           <AnimatedTitle
             isLightBackground={isLightBackground}
             vinylCount={displayedVinyls.length}
